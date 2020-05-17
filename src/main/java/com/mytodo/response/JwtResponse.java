@@ -1,19 +1,24 @@
 package com.mytodo.response;
 
+import lombok.Getter;
+
 import java.io.Serializable;
 public class JwtResponse implements Serializable {
     private static final long serialVersionUID = -8091879091924046844L;
-    private final String jwttoken;
+
+    @Getter
+    private final String token;
+
+    @Getter
     private boolean success = false;
-    public JwtResponse(String jwttoken) {
-        this.jwttoken = jwttoken;
+
+    @Getter
+    private UserResponse user;
+
+    public JwtResponse(String jwttoken, UserResponse user) {
+        this.token = jwttoken;
+        this.user = user;
         this.success = true;
     }
-    public String getToken() {
-        return this.jwttoken;
-    }
 
-    public boolean isSuccess() {
-        return this.success;
-    }
 }

@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 
 import com.mytodo.repository.UserRepository;
 import com.mytodo.model.User;
-import com.mytodo.model.dto.UserDTO;
 
 @Service
 public class JwtUserDetailsService implements UserDetailsService {

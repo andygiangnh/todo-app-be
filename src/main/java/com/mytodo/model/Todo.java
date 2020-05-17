@@ -15,4 +15,5 @@ public class Todo {
     private int id;
     private String description;
     private boolean completed;
+    private Long userId;
 }

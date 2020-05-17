@@ -1,12 +1,15 @@
 package com.mytodo.controller;
 
 import com.mytodo.model.Todo;
+import com.mytodo.model.User;
 import com.mytodo.repository.TodoRepository;
+import com.mytodo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -17,16 +20,22 @@ public class TodoResource {
     @Autowired
     private TodoRepository todoRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @GetMapping
-    public ResponseEntity<List<Todo>> findAll() {
-        try {
-            Thread.sleep(2000);
-        } catch(Exception ex) {}
-        return  ResponseEntity.ok(todoRepository.findAll());
+    public ResponseEntity<List<Todo>> findAll(Principal principal) {
+        User user = userRepository.findByUsername(principal.getName())
+                .orElseThrow(() -> new RuntimeException("Error: user not found!"));
+
+        return  ResponseEntity.ok(todoRepository.findByUserId(user.getId()));
     }
 
     @PostMapping(consumes = "application/json")
-    public ResponseEntity<Todo> createTodo(@RequestBody Todo todo) {
+    public ResponseEntity<Todo> createTodo(@RequestBody Todo todo, Principal principal) {
+        User user = userRepository.findByUsername(principal.getName())
+                .orElseThrow(() -> new RuntimeException("Error: user not found!"));
+        todo.setUserId(user.getId());
         todoRepository.saveAndFlush(todo);
         try {
             Thread.sleep(2000);
