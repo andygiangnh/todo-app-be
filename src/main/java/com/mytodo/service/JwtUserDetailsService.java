@@ -1,7 +1,15 @@
 package com.mytodo.service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
+import com.mytodo.exception.ExistingEmailFoundException;
+import com.mytodo.exception.ExistingUsernameFoundException;
+import com.mytodo.model.ERole;
+import com.mytodo.model.Role;
+import com.mytodo.repository.RoleRepository;
+import com.mytodo.request.SignupRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -17,26 +25,62 @@ import com.mytodo.model.dto.UserDTO;
 public class JwtUserDetailsService implements UserDetailsService {
 
     @Autowired
-    private UserRepository userDao;
+    private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Autowired
     private PasswordEncoder bcryptEncoder;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userDao.findByUsername(username);
-        if (user == null) {
-            throw new UsernameNotFoundException("User not found with username: " + username);
-        }
-        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
-                new ArrayList<>());
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+
+        return UserDetailsImpl.build(user);
     }
 
-    public User save(UserDTO user) {
+    public User save(SignupRequest signupRequest) throws ExistingUsernameFoundException, ExistingEmailFoundException {
+        if (userRepository.existsByUsername(signupRequest.getUsername())) {
+            throw new ExistingUsernameFoundException("Error: username is already exist!");
+        }
+
+        if (userRepository.existsByEmail(signupRequest.getEmail())) {
+            throw new ExistingEmailFoundException("Error: email is already exist!");
+        }
+
         User newUser = new User();
-        newUser.setUsername(user.getUsername());
-        newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
-        return userDao.save(newUser);
+        newUser.setUsername(signupRequest.getUsername());
+        newUser.setEmail(signupRequest.getEmail());
+        newUser.setPassword(bcryptEncoder.encode(signupRequest.getPassword()));
+
+        Set<String> strRoles = signupRequest.getRoles();
+        Set<Role> roles = new HashSet<>();
+
+        if (strRoles == null) {
+            Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+                    .orElseThrow(() -> new RuntimeException("Error: Role User is not found."));
+            roles.add(userRole);
+        } else {
+            strRoles.forEach(role -> {
+                switch (role) {
+                    case "admin":
+                        Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
+                                .orElseThrow(() -> new RuntimeException("Error: Role Admin is not found."));
+                        roles.add(adminRole);
+                        break;
+                    default:
+                        Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+                                .orElseThrow(() -> new RuntimeException("Error: Role User is not found."));
+                        roles.add(userRole);
+                }
+            });
+        }
+
+        newUser.setRoles(roles);
+
+        return userRepository.save(newUser);
     }
 
 }

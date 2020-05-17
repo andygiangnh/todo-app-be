@@ -1,6 +1,9 @@
 package com.mytodo.controller;
 
-import com.mytodo.model.dto.UserDTO;
+import com.mytodo.exception.ExistingEmailFoundException;
+import com.mytodo.exception.ExistingUsernameFoundException;
+import com.mytodo.request.SignupRequest;
+import com.mytodo.response.MessageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,6 +20,7 @@ import com.mytodo.service.JwtUserDetailsService;
 import com.mytodo.jwt.config.JwtTokenUtil;
 import com.mytodo.request.JwtRequest;
 import com.mytodo.response.JwtResponse;
+
 @RestController
 @CrossOrigin
 public class JwtAuthenticationController {
@@ -26,6 +30,7 @@ public class JwtAuthenticationController {
     private JwtTokenUtil jwtTokenUtil;
     @Autowired
     private JwtUserDetailsService userDetailsService;
+
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
         authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
@@ -36,8 +41,14 @@ public class JwtAuthenticationController {
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public ResponseEntity<?> saveUser(@RequestBody UserDTO user) throws Exception {
-        return ResponseEntity.ok(userDetailsService.save(user));
+    public ResponseEntity<?> saveUser(@RequestBody SignupRequest signupRequest) throws Exception {
+        try {
+            userDetailsService.save((signupRequest));
+        } catch (ExistingUsernameFoundException | ExistingEmailFoundException e) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse(e.getMessage()));
+        }
+        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
 
     private void authenticate(String username, String password) throws Exception {
