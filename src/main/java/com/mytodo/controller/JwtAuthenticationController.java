@@ -21,6 +21,8 @@ import com.mytodo.jwt.config.JwtTokenUtil;
 import com.mytodo.request.JwtRequest;
 import com.mytodo.response.JwtResponse;
 
+import javax.validation.Valid;
+
 @RestController
 @CrossOrigin
 public class JwtAuthenticationController {
@@ -32,7 +34,7 @@ public class JwtAuthenticationController {
     private JwtUserDetailsService userDetailsService;
 
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
+    public ResponseEntity<?> createAuthenticationToken(@Valid @RequestBody JwtRequest authenticationRequest) throws Exception {
         authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
         final UserDetails userDetails = userDetailsService
                 .loadUserByUsername(authenticationRequest.getUsername());
@@ -41,7 +43,7 @@ public class JwtAuthenticationController {
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public ResponseEntity<?> saveUser(@RequestBody SignupRequest signupRequest) throws Exception {
+    public ResponseEntity<?> saveUser(@Valid @RequestBody SignupRequest signupRequest) throws Exception {
         try {
             userDetailsService.save((signupRequest));
         } catch (ExistingUsernameFoundException | ExistingEmailFoundException e) {
