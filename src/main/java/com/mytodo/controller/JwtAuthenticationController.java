@@ -1,7 +1,5 @@
 package com.mytodo.controller;
 
-import com.mytodo.exception.ExistingEmailFoundException;
-import com.mytodo.exception.ExistingUsernameFoundException;
 import com.mytodo.request.SignupRequest;
 import com.mytodo.response.MessageResponse;
 import com.mytodo.response.UserResponse;
@@ -58,9 +56,8 @@ public class JwtAuthenticationController {
     public ResponseEntity<?> saveUser(@Valid @RequestBody SignupRequest signupRequest) throws Exception {
         try {
             userDetailsService.save((signupRequest));
-        } catch (ExistingUsernameFoundException | ExistingEmailFoundException e) {
-            return ResponseEntity.badRequest()
-                    .body(new MessageResponse(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error processing input");
         }
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }

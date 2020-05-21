@@ -1,5 +1,7 @@
 package com.mytodo.request;
 
+import com.mytodo.bean.validation.ValidEmail;
+import com.mytodo.bean.validation.ValidUsername;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,11 +16,13 @@ public class SignupRequest {
 
     @NotBlank
     @Size(min = 3, max = 20)
+    @ValidUsername
     private String username;
 
     @NotBlank
     @Size(max = 50)
     @Email
+    @ValidEmail
     private String email;
 
     @NotBlank

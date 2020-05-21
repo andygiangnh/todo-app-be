@@ -1,11 +1,8 @@
 package com.mytodo.service;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.mytodo.exception.ExistingEmailFoundException;
-import com.mytodo.exception.ExistingUsernameFoundException;
 import com.mytodo.model.ERole;
 import com.mytodo.model.Role;
 import com.mytodo.repository.RoleRepository;
@@ -40,15 +37,7 @@ public class JwtUserDetailsService implements UserDetailsService {
         return UserDetailsImpl.build(user);
     }
 
-    public User save(SignupRequest signupRequest) throws ExistingUsernameFoundException, ExistingEmailFoundException {
-        if (userRepository.existsByUsername(signupRequest.getUsername())) {
-            throw new ExistingUsernameFoundException("Error: username is already exist!");
-        }
-
-        if (userRepository.existsByEmail(signupRequest.getEmail())) {
-            throw new ExistingEmailFoundException("Error: email is already exist!");
-        }
-
+    public User save(SignupRequest signupRequest) {
         User newUser = new User();
         newUser.setUsername(signupRequest.getUsername());
         newUser.setEmail(signupRequest.getEmail());
