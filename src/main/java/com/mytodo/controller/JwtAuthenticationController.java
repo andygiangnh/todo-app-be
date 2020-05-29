@@ -39,11 +39,12 @@ public class JwtAuthenticationController {
     public ResponseEntity<?> createAuthenticationToken(@Valid @RequestBody JwtRequest authenticationRequest) throws Exception {
         authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 
-        final UserDetails userDetails = userDetailsService
+        final UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsService
                 .loadUserByUsername(authenticationRequest.getUsername());
         final String token = jwtTokenUtil.generateToken(userDetails);
         final UserResponse user = new UserResponse(userDetails.getUsername(),
-                ((UserDetailsImpl)userDetails).getEmail(),
+                userDetails.getFullName(),
+                userDetails.getEmail(),
                 userDetails.getAuthorities()
                         .stream()
                         .map(authority -> ((GrantedAuthority) authority).getAuthority())

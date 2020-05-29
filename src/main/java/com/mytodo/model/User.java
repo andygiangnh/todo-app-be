@@ -18,6 +18,9 @@ public class User {
     private long id;
 
     @Column
+    private String fullName;
+
+    @Column
     private String username;
 
     @Column
