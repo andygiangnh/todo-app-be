@@ -47,14 +47,14 @@ public class JwtUserDetailsService implements UserDetailsService {
         Set<String> strRoles = signupRequest.getRoles();
         Set<Role> roles = new HashSet<>();
 
-        if (strRoles == null) {
+        if (strRoles == null) { // if nothing specify then add ROLE_USER to this user
             Role userRole = roleRepository.findByName(ERole.ROLE_USER)
                     .orElseThrow(() -> new RuntimeException("Error: Role User is not found."));
             roles.add(userRole);
         } else {
             strRoles.forEach(role -> {
                 switch (role) {
-                    case "admin":
+                    case "ROLE_ADMIN":
                         Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
                                 .orElseThrow(() -> new RuntimeException("Error: Role Admin is not found."));
                         roles.add(adminRole);
