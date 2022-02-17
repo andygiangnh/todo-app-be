@@ -16,7 +16,14 @@ ARG JAR_FILE=target/todo-service-0.0.1-SNAPSHOT.jar
 # Add the application's jar to the container
 ADD ${JAR_FILE} todo-service.jar
 
-ENV DB_SERVER=host.docker.internal
+ENV DB_SERVER=todoinstance.cmckrbxesubq.ap-northeast-2.rds.amazonaws.com
 
 # Run the jar file
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom", "-Dspring.profiles.actives=prod", "-jar","/todo-service.jar"]
+#ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom", "-Dspring.profiles.actives=prod", "-jar","/todo-service.jar"]
+
+COPY ./scripts/start.sh /
+USER root
+RUN chmod +x /start.sh
+
+# Run the jar file
+ENTRYPOINT ["/start.sh"]
