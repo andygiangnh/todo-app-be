@@ -19,4 +19,4 @@ ADD ${JAR_FILE} todo-service.jar
 ENV DB_SERVER=host.docker.internal
 
 # Run the jar file
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/todo-service.jar"]
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom", "-Dspring.profiles.actives=prod", "-jar","/todo-service.jar"]
